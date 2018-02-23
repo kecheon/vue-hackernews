@@ -2,7 +2,7 @@ jest.mock('../../api/api.js')
 
 import Vuex from 'vuex'
 import Router from 'vue-router'
-import { createLocalVue } from 'vue-test-utils'
+import { createLocalVue } from '@vue/test-utils'
 import flushPromises from 'flush-promises'
 import storeConfig from '../store-config'
 import {

@@ -1,4 +1,4 @@
-import { mount } from 'vue-test-utils'
+import { mount } from '@vue/test-utils'
 import Item from '../Item.vue'
 
 describe('Item.vue', () => {

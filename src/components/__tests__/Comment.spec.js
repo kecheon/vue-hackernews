@@ -1,4 +1,4 @@
-import { shallow, createLocalVue } from 'vue-test-utils'
+import { shallow, createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
 import Comment from '../Comment.vue'
 
@@ -114,18 +114,6 @@ describe('Comment.vue', () => {
     })
     wrapper.find('a').trigger('click')
     expect(wrapper.find('a').text()).toContain(closedText)
-  })
-
-  test('renders a comment for each kid', () => {
-    a1.kids = ['', '']
-    const wrapper = shallow(Comment, {
-      localVue,
-      store,
-      propsData: {
-        id: 'a1'
-      }
-    })
-    expect(wrapper.findAll(Comment)).toHaveLength(a1.kids.length)
   })
 
   test('renders a comment for each kid', () => {

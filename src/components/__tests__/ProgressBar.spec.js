@@ -1,4 +1,4 @@
-import { shallow } from 'vue-test-utils'
+import { shallow } from '@vue/test-utils'
 import ProgressBar from '../ProgressBar.vue'
 
 describe('ProgressBar.vue', () => {
