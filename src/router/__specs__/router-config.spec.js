@@ -1,4 +1,4 @@
-import { createLocalVue } from 'vue-test-utils'
+import { createLocalVue } from '@vue/test-utils'
 import Router from 'vue-router'
 import routerConfig from '../router-config'
 import ItemList from '../../views/ItemList.vue'

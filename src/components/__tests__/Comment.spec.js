@@ -1,4 +1,4 @@
-import { shallow, createLocalVue } from 'vue-test-utils'
+import { shallow, createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
 import Comment from '../Comment.vue'
 

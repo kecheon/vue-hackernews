@@ -1,7 +1,7 @@
 jest.mock('../../api/api.js')
 jest.useRealTimers()
 
-import { shallow, createLocalVue } from 'vue-test-utils'
+import { shallow, createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
 import flushPromises from 'flush-promises'
 import ItemList from '../ItemList.vue'
