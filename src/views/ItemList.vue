@@ -37,7 +37,7 @@ export default {
       this.fetchListData({
         type: 'top'
       }).then(() => {
-        this.displayedItems = this.$store.getters.activeItems
+        this.displayedItems = this.$store.state.items
         this.$bar.finish()
       })
     }

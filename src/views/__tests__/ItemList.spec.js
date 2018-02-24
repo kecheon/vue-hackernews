@@ -28,13 +28,13 @@ describe('ItemList.vue', () => {
     })
   })
 
-  test('renders an Item for each item in activeItems getter', async () => {
+  test('renders an Item for each item in state.items', async () => {
     const $bar = {
       start: () => {},
       finish: () => {}
     }
     const items = [{}, {}, {}]
-    getters.activeItems.mockReturnValue(items)
+    store.state.items = items
 
     const wrapper = mount(ItemList, {mocks: {$bar}, localVue, store})
     await flushPromises()
