@@ -7,68 +7,63 @@ import flushPromises from 'flush-promises'
 import ItemList from '../ItemList.vue'
 import Item from '../../components/Item.vue'
 
-describe('ItemList.vue', () => {
-  const localVue = createLocalVue()
-  localVue.use(Vuex)
-  let actions
-  let getters
-  let store
+const localVue = createLocalVue()
+localVue.use(Vuex)
 
-  beforeEach(() => {
-    actions = {
-      fetchListData: jest.fn(() => Promise.resolve())
-    }
-    getters = {
-      activeItems: jest.fn()
-    }
-    store = new Vuex.Store({
+function createMountOptions(overrides) {
+  return {
+    mocks: {
+      $bar: {
+        start: jest.fn(),
+        finish: jest.fn()
+      }
+    },
+    localVue,
+    store: new Vuex.Store({
       state: {},
-      getters,
-      actions
+      getters: {
+        activeItems: jest.fn()
+      },
+      actions: {
+        fetchListData: jest.fn(() => Promise.resolve())
+      }
     })
-  })
+  }
+}
 
+describe('ItemList.vue', () => {
   test('renders an Item for each item in state.items', async () => {
-    const $bar = {
-      start: () => {},
-      finish: () => {}
-    }
     const items = [{}, {}, {}]
-    store.state.items = items
+    const mountingOptions = createMountOptions()
+    mountingOptions.store.state.items = items
 
-    const wrapper = mount(ItemList, {mocks: {$bar}, localVue, store})
+    const wrapper = mount(ItemList, mountingOptions)
     await flushPromises()
     expect(wrapper.findAll(Item).length).toBe(items.length)
   })
 
   test('passes an item object to each Item component', () => {
-    const $bar = {
-      start: () => {},
-      finish: () => {}
-    }
-    const wrapper = mount(ItemList, {mocks: {$bar}, localVue, store})
+    const items = [{}, {}, {}]
+    const mountingOptions = createMountOptions()
+    mountingOptions.store.state.items = items
+
+    const wrapper = mount(ItemList, mountingOptions)
     const Items = wrapper.findAll(Item)
     Items.wrappers.forEach((wrapper, i) => {
-      expect(wrapper.vm.item).toBe(window.items[i])
+      expect(wrapper.vm.item).toBe(items[i])
     })
   })
 
   test('calls $bar start on load', () => {
-    const $bar = {
-      start: jest.fn(),
-      finish: () => {}
-    }
-    mount(ItemList, {mocks: {$bar}, localVue, store})
-    expect($bar.start).toHaveBeenCalled()
+    const mountingOptions = createMountOptions()
+    mount(ItemList, mountingOptions)
+    expect(mountingOptions.mocks.$bar.start).toHaveBeenCalled()
   })
 
   test('calls $bar finish when load succesful', async () => {
-    const $bar = {
-      start: () => {},
-      finish: jest.fn()
-    }
-    mount(ItemList, {mocks: {$bar}, localVue, store})
+    const mountingOptions = createMountOptions()
+    mount(ItemList, mountingOptions)
     await flushPromises()
-    expect($bar.finish).toHaveBeenCalled()
+    expect(mountingOptions.mocks.$bar.finish).toHaveBeenCalled()
   })
 })
