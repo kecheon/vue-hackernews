@@ -1,59 +1,69 @@
-import { shallow, createLocalVue } from 'vue-test-utils'
+import { shallow, createLocalVue, RouterLinkStub } from '@vue/test-utils'
 import Vuex from 'vuex'
 import flushPromises from 'flush-promises'
 import ItemList from '../ItemList.vue'
 import Item from '../../components/Item.vue'
+import merge from 'lodash.merge'
 
-describe('ItemList.vue', () => {
-  const localVue = createLocalVue()
-  localVue.use(Vuex)
-  let actions
-  let getters
-  let store
-  let state // #A
-  let mocks
-  let items
+const localVue = createLocalVue()
+localVue.use(Vuex)
+const items = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}] // #B
 
-  beforeEach(() => {
-    actions = {
+function createStore (overrides) {
+  const defaultStoreConfig = {
+    state: {
+      itemsPerPage: 25,
+      lists: {
+        top: items
+      }
+    },
+    getters: {
+      activeItems: jest.fn()
+    },
+    actions: {
       fetchListData: jest.fn(() => Promise.resolve())
     }
-    getters = {
-      activeItems: jest.fn()
+  }
+  return new Vuex.Store(
+    merge(defaultStoreConfig, overrides)
+  )
+}
+const defaultMountingOptions = {
+  mocks: {
+    $bar: {
+      start: jest.fn(),
+      finish: jest.fn()
+    },
+    $route: {
+      params: jest.fn()
+    },
+    $router: { // #A
+      replace: jest.fn()
     }
-    items = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}] // #B
-    state = {
-      itemsPerPage: 25, lists: {top: items}
-    }
-    store = new Vuex.Store({
-      state,
-      getters,
-      actions
-    })
-    mocks = {
-      $bar: {
-        start: jest.fn(),
-        finish: jest.fn()
-      },
-      $route: {
-        params: {}
-      },
-      $router: { // #A
-        replace: jest.fn()
-      }
-    }
-  })
+  },
+  localVue,
+  store: createStore(),
+  propsData: {
+    type: 'top'
+  },
+  stubs: {
+    RouterLink: RouterLinkStub
+  }
+}
 
+function createWrapper (overrides) {
+  return shallow(ItemList, merge(defaultMountingOptions, overrides))
+}
+
+describe('ItemList.vue', () => {
   test('renders an Item for each item in activeItems getter', async () => {
     const items = [{}, {}, {}]
-    getters.activeItems.mockImplementation(() => items)
-
-    const wrapper = shallow(ItemList, {
-      mocks, // #D
-      localVue,
-      store,
-      propsData: {type: 'top'}
+    const store = createStore({
+      getters: {
+        activeItems: jest.fn(() => items)
+      }
     })
+    const wrapper = createWrapper({ store })
 
     await flushPromises
     await flushPromises
@@ -62,12 +72,7 @@ describe('ItemList.vue', () => {
   })
 
   test('passes an item object to each Item component', () => {
-    const wrapper = shallow(ItemList, {
-      mocks,
-      localVue,
-      store,
-      propsData: {type: 'top'}
-    })
+    const wrapper = createWrapper()
     const Items = wrapper.findAll(Item)
     Items.wrappers.forEach((wrapper, i) => {
       expect(wrapper.vm.item).toBe(items[i])
@@ -75,22 +80,22 @@ describe('ItemList.vue', () => {
   })
 
   test('calls $bar start on load', () => {
-    shallow(ItemList, {
-      mocks,
-      localVue,
-      store,
-      propsData: {type: 'top'}
-    })
+    const mocks = {
+      $bar: {
+        start: jest.fn()
+      }
+    }
+    createWrapper({ mocks })
     expect(mocks.$bar.start).toHaveBeenCalled() // #E
   })
 
   test('calls $bar finish when load succesful', async () => {
-    shallow(ItemList, {
-      mocks,
-      localVue,
-      store,
-      propsData: {type: 'top'}
-    })
+    const mocks = {
+      $bar: {
+        finish: jest.fn()
+      }
+    }
+    createWrapper({ mocks })
 
     await flushPromises()
 
@@ -98,52 +103,65 @@ describe('ItemList.vue', () => {
   })
 
   test('renders 1/5 when on page 1 of 5', () => {
-    state.lists.top = new Array(100).fill({}) // #A
-    mocks.$route.params = {} // #B
-    const wrapper = shallow(ItemList, {
-      mocks,
-      localVue,
-      store,
-      propsData: {type: 'top'}
+    const store = createStore({
+      state: {
+        lists: {
+          top: new Array(100).fill({})
+        }
+      }
     })
+    const wrapper = createWrapper({store})
     expect(wrapper.text()).toContain('1/5') // #C
   })
 
   test('renders 2/5 when on page 2 of 5', () => {
-    state.lists.top = new Array(100).fill({})
-    mocks.$route.params.page = 2 // #E
-
-    const wrapper = shallow(ItemList, {
-      mocks,
-      localVue,
-      store,
-      propsData: {type: 'top'}
+    const store = createStore({
+      state: {
+        lists: {
+          top: new Array(100).fill({})
+        }
+      }
     })
+    const mocks = {
+      $route: {
+        params: {
+          page: 2
+        }
+      }
+    }
+    const wrapper = createWrapper({ mocks, store })
     expect(wrapper.text()).toContain('2/5')
   })
 
   test('calls $router.replace when the page parameter is less than 0', async () => {
-    mocks.$route.params.page = -1 // #B
-    shallow(ItemList, {
-      mocks,
-      localVue, // #C
-      store,
-      propsData: {type: 'top'}
-    })
-
+    const mocks = {
+      $route: {
+        params: {
+          page: -1
+        }
+      },
+      $router: {
+        replace: jest.fn()
+      }
+    }
+    createWrapper({ mocks })
     await flushPromises()
 
     expect(mocks.$router.replace).toHaveBeenCalledWith('/top/1') // #D
   })
 
   test('calls $router.replace when the page parameter is greater than the max page number', async () => {
-    mocks.$route.params.page = 1000
-    shallow(ItemList, {
-      mocks,
-      localVue,
-      store,
-      propsData: {type: 'top'}
-    })
+    const mocks = {
+      $route: {
+        params: {
+          page: 1000
+        }
+      },
+      $router: {
+        replace: jest.fn()
+      }
+    }
+    createWrapper({ mocks })
 
     await flushPromises()
 
@@ -151,91 +169,66 @@ describe('ItemList.vue', () => {
   })
 
   test('renders an a tag with an href if there are no previous pages', () => {
-    const wrapper = shallow(ItemList, {
-      mocks,
-      localVue,
-      store,
-      propsData: {type: 'top'}
-    })
+    const wrapper = createWrapper()
 
     expect(wrapper.find('a').attributes().href).toBe(undefined) // #A
     expect(wrapper.find('a').text()).toBe('< prev') // #B
   })
 
   test('renders a <router-link> with the previous page if one exists', () => {
-    const RouterLink = { // #C
-      render: function (h) {
-        return h('div', this.$slots.default) // #E
-      },
-      name: 'router-link',
-      props: ['to'] // #F
+    const mocks = {
+      $route: {
+        params: { page: 2}
+      }
     }
-    mocks.$route.params.page = 2
-    const wrapper = shallow(ItemList, {
-      mocks,
-      localVue,
-      store,
-      stubs: { // #G
-        RouterLink
-      },
-      propsData: {type: 'top'}
-    })
+    const wrapper = createWrapper({ mocks })
 
-    expect(wrapper.find(RouterLink).props().to).toBe('/top/1') // #H
-    expect(wrapper.find(RouterLink).text()).toBe('< prev') // #I
+    expect(wrapper.find(RouterLinkStub).props().to).toBe('/top/1') // #H
+    expect(wrapper.find(RouterLinkStub).text()).toBe('< prev') // #I
   })
 
   test('renders an a tag with an href if there are no next pages', () => {
-    state.lists.top = [{}]
-    const wrapper = shallow(ItemList, {
-      mocks,
-      localVue,
-      store,
-      propsData: {type: 'top'}
-    })
+    const store = createStore({ state: {
+      lists: {
+        top: [{}]
+      }
+    }})
+    const wrapper = createWrapper({ store })
 
     expect(wrapper.findAll('a').at(1).attributes().href).toBe(undefined)
     expect(wrapper.findAll('a').at(1).text()).toBe('more >')
   })
 
   test('renders a <router-link> with the next page if one exists', () => {
-    const RouterLink = {
-      render: function (h) {
-        return h('div', this.$slots.default)
-      },
-      name: 'router-link',
-      props: ['to']
-    }
-    const wrapper = shallow(ItemList, {
-      mocks,
-      localVue,
-      store,
-      stubs: {
-        RouterLink
-      },
-      propsData: {type: 'top'}
-    })
-
-    expect(wrapper.find(RouterLink).props().to).toBe('/top/2')
-    expect(wrapper.find(RouterLink).text()).toBe('more >')
+    const wrapper = createWrapper()
+    expect(wrapper.find(RouterLinkStub).props().to).toBe('/top/2')
+    expect(wrapper.find(RouterLinkStub).text()).toBe('more >')
   })
 
-  test('reloads items when params.page changes', async () => {
-    mocks.$route.params.page = 1 // #A
+  test.only('reloads items when params.page changes', async () => {
+    const mocks = {
+      ...defaultMountingOptions.mocks,
+      $route: {
+        params: {
+          page: 1
+        }
+      }
+    }
+    const actions = {
+      fetchListData: jest.fn()
+    }
+    const store = createStore({ actions })
     const wrapper = shallow(ItemList, {
+      ...defaultMountingOptions,
       mocks,
-      propsData: {
-        type: 'top'
-      },
-      store,
-      localVue
+      store
     })
     await flushPromises()
-
     expect(actions.fetchListData).toHaveBeenCalled() // #B
     actions.fetchListData.mockReset() // #C
     mocks.$route.params.page = 2 // #D
     wrapper.update() // #E
+    await flushPromises() // #F
     await flushPromises() // #F
     expect(actions.fetchListData).toHaveBeenCalled() // #G
   })
