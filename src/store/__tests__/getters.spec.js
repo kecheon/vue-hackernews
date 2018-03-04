@@ -1,60 +1,51 @@
 import getters from '../getters'
 
 describe('getters', () => {
-  test('activeIds returns an empty array when state.lists is undefined', () => {
-    const result = getters.activeIds({ activeType: undefined, lists: undefined })
-    expect(result).toEqual([])
-  })
-
-  test('activeIds returns items from the active list using the itemsPerPage if no page is active', () => { // #A
-    const activeType = 'top'
-    const itemsPerPage = 20
+  test('activeIds returns the first 20 items from state.ids', () => {
     var numberArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
-    const lists = {
-      top: [...numberArray]
+    const state = {
+      ids: numberArray,
+      route: {
+        params: {}
+      }
     }
-    const result = getters.activeIds({ activeType, itemsPerPage, lists, route: { params: {} } }) // #B
-    expect(result.length).toEqual(itemsPerPage)
-    for (let i = 0; i < itemsPerPage; i++) { // #C
+    const result = getters.activeIds(state)
+    expect(result.length).toEqual(20)
+    for (let i = 0; i < 20; i++) {
       expect(result[i]).toEqual(numberArray[i])
     }
   })
 
-  test('activeItems returns state.items that match the activeIds', () => {
-    const activeIds = ['a', 'b']
-    const state = {
-      items: {
-        'a': {id: 1},
-        'b': {id: 2}
+  test('activeIds returns ids 20-40 if page is 2', () => { // #A
+    const numberArray = Array(40).fill().map((v, i) => i)
+    const result = getters.activeIds({
+      ids: numberArray,
+      route: {
+        params: {
+          page: 2
+        }
       }
+    }) // #B
+    expect(result.length).toEqual(20)
+    for (let i = 0; i < 20; i++) { // #C
+      expect(result[i]).toEqual(numberArray[i + 20])
     }
-    const activeItems = getters.activeItems(state, { activeIds })
-    expect(activeItems[0]).toBe(state.items.a)
-    expect(activeItems[1]).toBe(state.items.b)
   })
 
-  test('activeIds returns items from the active list using the itemsPerPage and page parameter', () => {
-    const activeType = 'top'
-    const itemsPerPage = 10
-    const route = { // #A
+  test('returns remaining ids after 20 if page is 2 and there are 21 ids', () => {
+    const route = {
       params: {
-        page: 2 // #B
+        page: 2
       }
     }
-    var numberArray = [1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21]
-    const lists = {
-      top: [...numberArray] // #C
-    }
+// Create array of 21 numbers, each item contains the index
+    const numberArray = Array(21).fill().map((v, i) => i)
     const store = {
-      activeType,
-      itemsPerPage,
-      lists,
+      ids: numberArray,
       route
     }
-    const result = getters.activeIds(store) // #D
-    expect(result.length).toEqual(itemsPerPage) // #E
-    for (let i = 0; i < itemsPerPage; i++) {
-      expect(result[i]).toEqual(numberArray[i + 10]) // #F
-    }
+    const result = getters.activeIds(store)
+    expect(result.length).toEqual(1)
+    expect(result[0]).toBe(numberArray[20])
   })
 })

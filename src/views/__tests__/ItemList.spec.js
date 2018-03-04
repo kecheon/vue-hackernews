@@ -11,8 +11,9 @@ localVue.use(Vuex)
 function createStore (overrides) {
   const defaultStoreConfig = {
     state: {
-      itemsPerPage: 25,
-      items: []
+      itemsPerPage: 20,
+      items: [],
+      ids: new Array(40).fill({})
     },
     getters: {
       activeItems: jest.fn()
@@ -25,30 +26,30 @@ function createStore (overrides) {
     merge(defaultStoreConfig, overrides)
   )
 }
-const defaultMountingOptions = {
-  mocks: {
-    $bar: {
-      start: jest.fn(),
-      finish: jest.fn()
-    },
-    $route: {
-      params: jest.fn()
-    },
-    $router: { // #A
-      replace: jest.fn()
-    }
-  },
-  localVue,
-  store: createStore(),
-  propsData: {
-    type: 'top'
-  },
-  stubs: {
-    RouterLink: RouterLinkStub
-  }
-}
 
 function createWrapper (overrides) {
+  const defaultMountingOptions = {
+    mocks: {
+      $bar: {
+        start: jest.fn(),
+        finish: jest.fn()
+      },
+      $route: {
+        params: {}
+      },
+      $router: {
+        replace: jest.fn()
+      }
+    },
+    localVue,
+    store: createStore(),
+    propsData: {
+      type: 'top'
+    },
+    stubs: {
+      RouterLink: RouterLinkStub
+    }
+  }
   return shallow(ItemList, merge(defaultMountingOptions, overrides))
 }
 
@@ -96,24 +97,20 @@ describe('ItemList.vue', () => {
   test('renders 1/5 when on page 1 of 5', () => {
     const store = createStore({
       state: {
-        lists: {
-          top: new Array(100).fill({})
-        }
+        ids: new Array(100).fill({}) // #A
       }
     })
     const wrapper = createWrapper({store})
-    expect(wrapper.text()).toContain('1/5') // #C
+    expect(wrapper.text()).toContain('1/5') // #B
   })
 
   test('renders 2/5 when on page 2 of 5', () => {
     const store = createStore({
       state: {
-        lists: {
-          top: new Array(100).fill({})
-        }
+        ids: new Array(100).fill({})
       }
     })
-    const mocks = {
+    const mocks = { // #C
       $route: {
         params: {
           page: 2
@@ -121,7 +118,7 @@ describe('ItemList.vue', () => {
       }
     }
     const wrapper = createWrapper({ mocks, store })
-    expect(wrapper.text()).toContain('2/5')
+    expect(wrapper.text()).toContain('2/5') // #D
   })
 
   test('calls $router.replace when the page parameter is less than 0', async () => {
@@ -137,7 +134,6 @@ describe('ItemList.vue', () => {
     }
     createWrapper({ mocks })
     await flushPromises()
-
     expect(mocks.$router.replace).toHaveBeenCalledWith('/top/1') // #D
   })
 
@@ -153,23 +149,14 @@ describe('ItemList.vue', () => {
       }
     }
     createWrapper({ mocks })
-
     await flushPromises()
-
     expect(mocks.$router.replace).toHaveBeenCalledWith('/top/1')
-  })
-
-  test('renders an a tag with an href if there are no previous pages', () => {
-    const wrapper = createWrapper()
-
-    expect(wrapper.find('a').attributes().href).toBe(undefined) // #A
-    expect(wrapper.find('a').text()).toBe('< prev') // #B
   })
 
   test('renders a <router-link> with the previous page if one exists', () => {
     const mocks = {
       $route: {
-        params: { page: 2}
+        params: { page: 2 }
       }
     }
     const wrapper = createWrapper({ mocks })
@@ -177,12 +164,16 @@ describe('ItemList.vue', () => {
     expect(wrapper.find(RouterLinkStub).props().to).toBe('/top/1') // #H
     expect(wrapper.find(RouterLinkStub).text()).toBe('< prev') // #I
   })
+  test('renders an a tag with an href if there are no previous pages', () => {
+    const wrapper = createWrapper()
 
-  test('renders an a tag with an href if there are no next pages', () => {
+    expect(wrapper.find('a').attributes().href).toBe(undefined) // #A
+    expect(wrapper.find('a').text()).toBe('< prev') // #B
+  })
+
+  test('renders an a tag with no href if there are no next pages', () => {
     const store = createStore({ state: {
-      lists: {
-        top: [{}]
-      }
+      ids: []
     }})
     const wrapper = createWrapper({ store })
 
@@ -191,36 +182,11 @@ describe('ItemList.vue', () => {
   })
 
   test('renders a <router-link> with the next page if one exists', () => {
-    const wrapper = createWrapper()
+    const store = createStore({ state: {
+      ids: new Array(40).fill({})
+    }})
+    const wrapper = createWrapper({ store })
     expect(wrapper.find(RouterLinkStub).props().to).toBe('/top/2')
     expect(wrapper.find(RouterLinkStub).text()).toBe('more >')
-  })
-
-  test.only('reloads items when params.page changes', async () => {
-    const mocks = {
-      ...defaultMountingOptions.mocks,
-      $route: {
-        params: {
-          page: 1
-        }
-      }
-    }
-    const actions = {
-      fetchListData: jest.fn()
-    }
-    const store = createStore({ actions })
-    const wrapper = shallow(ItemList, {
-      ...defaultMountingOptions,
-      mocks,
-      store
-    })
-    await flushPromises()
-    expect(actions.fetchListData).toHaveBeenCalled() // #B
-    actions.fetchListData.mockReset() // #C
-    mocks.$route.params.page = 2 // #D
-    wrapper.update() // #E
-    await flushPromises() // #F
-    await flushPromises() // #F
-    expect(actions.fetchListData).toHaveBeenCalled() // #G
   })
 })

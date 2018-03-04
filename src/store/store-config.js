@@ -5,11 +5,8 @@ import getters from './getters'
 const state = {
   activeType: null,
   itemsPerPage: 20,
-  items: {},
-  users: {},
-  lists: {
-    top: []
-  }
+  items: [],
+  ids: []
 }
 
 export default {

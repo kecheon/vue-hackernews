@@ -48,7 +48,7 @@ export default {
       return Number(this.$route.params.page) || 1
     },
     maxPage () {
-      return Math.ceil(this.$store.state.lists[this.type].length / 20)
+      return Math.ceil(this.$store.state.ids.length / 20)
     }
   },
 
