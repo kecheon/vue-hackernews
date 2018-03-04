@@ -65,7 +65,7 @@ export default {
           this.$router.replace(`/${this.type}/1`) // #C
           return
         }
-        this.displayedItems = this.$store.getters.activeItems
+        this.displayedItems = this.$store.state.items
         this.$bar.finish()
       })
     }

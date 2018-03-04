@@ -7,15 +7,12 @@ import merge from 'lodash.merge'
 
 const localVue = createLocalVue()
 localVue.use(Vuex)
-const items = [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}] // #B
 
 function createStore (overrides) {
   const defaultStoreConfig = {
     state: {
       itemsPerPage: 25,
-      lists: {
-        top: items
-      }
+      items: []
     },
     getters: {
       activeItems: jest.fn()
@@ -58,24 +55,20 @@ function createWrapper (overrides) {
 describe('ItemList.vue', () => {
   test('renders an Item for each item in activeItems getter', async () => {
     const items = [{}, {}, {}]
-    const store = createStore({
-      getters: {
-        activeItems: jest.fn(() => items)
-      }
-    })
+    const store = createStore({ state: { items } })
     const wrapper = createWrapper({ store })
-
-    await flushPromises
-    await flushPromises
-
+    await flushPromises()
     expect(wrapper.findAll(Item).length).toBe(items.length)
   })
 
-  test('passes an item object to each Item component', () => {
-    const wrapper = createWrapper()
+  test('passes an item object to each Item component', async () => {
+    const items = [{ id: 1 }, { id: 2 }, { id: 3 }]
+    const store = createStore({ state: { items } })
+    const wrapper = createWrapper({ store })
+    await flushPromises()
     const Items = wrapper.findAll(Item)
     Items.wrappers.forEach((wrapper, i) => {
-      expect(wrapper.vm.item).toBe(items[i])
+      expect(wrapper.vm.item.id).toBe(items[i].id)
     })
   })
 
@@ -89,16 +82,14 @@ describe('ItemList.vue', () => {
     expect(mocks.$bar.start).toHaveBeenCalled() // #E
   })
 
-  test('calls $bar finish when load succesful', async () => {
+  test('calls $bar finish when load successful', async () => {
     const mocks = {
       $bar: {
         finish: jest.fn()
       }
     }
     createWrapper({ mocks })
-
     await flushPromises()
-
     expect(mocks.$bar.finish).toHaveBeenCalled()
   })
 
