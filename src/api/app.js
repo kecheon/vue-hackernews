@@ -1,20 +1,31 @@
-import Firebase from 'firebase/app'
-import 'firebase/database'
+// this is aliased in webpack config based on server/client build
+import { createAPI } from 'create-api'
 
-if (!Firebase.apps.length) {
-  Firebase.initializeApp({
+const logRequests = !!process.env.DEBUG_API
+
+const api = createAPI({
+  version: '/v0',
+  config: {
     databaseURL: 'https://hacker-news.firebaseio.com'
-  })
+  }
+})
+
+// warm the front page cache every 15 min
+// make sure to do this only once across all requests
+if (api.onServer) {
+  warmCache()
 }
 
-
-const api = Firebase.database().ref('/v0')
+function warmCache () {
+  fetchItems((api.cachedIds.top || []).slice(0, 30))
+  setTimeout(warmCache, 1000 * 60 * 15)
+}
 
 function fetch (child) {
-  console.log(`fetching ${child}...`)
+  logRequests && console.log(`fetching ${child}...`)
   const cache = api.cachedItems
   if (cache && cache.has(child)) {
-    console.log(`cache hit for ${child}.`)
+    logRequests && console.log(`cache hit for ${child}.`)
     return Promise.resolve(cache.get(child))
   } else {
     return new Promise((resolve, reject) => {
@@ -23,8 +34,7 @@ function fetch (child) {
         // mark the timestamp when this item is cached
         if (val) val.__lastUpdated = Date.now()
         cache && cache.set(child, val)
-        console.log(`fetched ${child}.`)
-        console.log(val)
+        logRequests && console.log(`fetched ${child}.`)
         resolve(val)
       }, reject)
     })

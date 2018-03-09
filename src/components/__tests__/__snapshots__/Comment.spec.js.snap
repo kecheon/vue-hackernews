@@ -1,0 +1,9 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`Comment.vue renders correctly 1`] = `
+"<li class=\\"comment\\"><div class=\\"by\\"><router-link to=\\"/user/eddeyerburgh\\">eddeyerburgh</router-link>
+    2 hours ago
+  </div> <div class=\\"text\\">Old fallacies that keep coming back.</div> <div class=\\"toggle open\\"><a>[-]</a></div> <ul class=\\"comment-children\\"><li class=\\"comment\\"><div class=\\"by\\"><router-link to=\\"/user/eddeyerburgh\\">eddeyerburgh</router-link>
+    2 hours ago
+  </div> <div class=\\"text\\">Can you give three examples of different meanings?</div> <!----> <ul class=\\"comment-children\\"></ul></li></ul></li>"
+`;

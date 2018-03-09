@@ -21,28 +21,19 @@
 <script>
 import Item from '../components/Item.vue'
 import { mapActions } from 'vuex'
-
 export default {
   name: 'item-list',
   components: {
     Item
   },
-
   beforeMount () {
     this.loadItems()
   },
-
   data () {
     return {
       displayedItems: []
     }
   },
-  watch: {
-    page () {
-      this.loadItems()
-    }
-  },
-
   computed: {
     page () {
       return Number(this.$route.params.page) || 1
@@ -51,9 +42,7 @@ export default {
       return Math.ceil(this.$store.state.ids.length / 20)
     }
   },
-
   props: ['type'],
-
   methods: {
     ...mapActions(['fetchListData']),
     loadItems () {
@@ -70,7 +59,6 @@ export default {
       })
     }
   }
-
 }
 </script>
 
