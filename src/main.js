@@ -3,16 +3,23 @@ import App from './App.vue'
 import { createStore } from './store'
 import { createRouter } from './router'
 import { sync } from 'vuex-router-sync'
-import titleMixin from './util/title'
-import * as filters from './util/filters'
+import {
+  titleMixin,
+  HTTPStatusMixin
+} from './util/mixins'
+import {
+  timeAgo,
+  host
+} from './util/filters'
 
 // mixin for handling title
+// mixin for handling title
 Vue.mixin(titleMixin)
+Vue.mixin(HTTPStatusMixin)
 
 // register global utility filters.
-Object.keys(filters).forEach(key => {
-  Vue.filter(key, filters[key])
-})
+Vue.filter('timeAgo', timeAgo)
+Vue.filter('host', host)
 
 // Expose a factory function that creates a fresh set of store, router,
 // app instances on each call (which is called for each SSR request)

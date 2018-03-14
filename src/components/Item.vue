@@ -1,35 +1,48 @@
 <template>
-  <li class="item">
+  <li class="news-item">
     <span class="score">{{ item.score }}</span>
     <span class="title">
-      <a :href="item.url" target="_blank" rel="noopener">{{ item.title }}</a>
-      <span class="host"> ({{ item.url }})</span>
+      <template v-if="item.url">
+        <a :href="item.url" target="_blank" rel="noopener">{{ item.title }}</a>
+        <span class="host"> ({{ item.url | host }})</span>
+      </template>
+      <template v-else>
+        <router-link :to="'/item/' + item.id">{{ item.title }}</router-link>
+      </template>
     </span>
     <br>
     <span class="meta">
-      <span class="by">
-        by {{ item.by }}
+      <span v-if="item.type !== 'job'" class="by">
+        by <router-link :to="'/user/' + item.by">{{ item.by }}</router-link>
       </span>
+      <span v-if="item.type !== 'job'" class="comments-link">
+        | <router-link :to="'/item/' + item.id">{{ item.descendants }} comments</router-link>
+      </span>
+    <span class="time">
+      {{ item.time | timeAgo }} ago
     </span>
+    </span>
+    <span class="label" v-if="item.type !== 'story'">{{ item.type }}</span>
   </li>
 </template>
 
+
 <script>
-export default {
-  name: 'item',
-  props: ['item']
-}
+  export default {
+    name: 'Item',
+    props: ['item']
+  }
 </script>
 
 <style>
-.item {
+.news-item {
 	background-color: #fff;
 	padding: 20px 30px 20px 80px;
 	border-bottom: 1px solid #eee;
 	position: relative;
 	line-height: 20px;
 }
-.item .score {
+.news-item .score {
 	color: #f60;
 	font-size: 1.1em;
 	font-weight: 700;
@@ -40,18 +53,18 @@ export default {
 	text-align: center;
 	margin-top: -10px;
 }
-.item .meta,
-.item .host {
+.news-item .meta,
+.news-item .host {
 	font-size: 0.85em;
 	color: #828282;
 }
-.item .meta a,
-.item .host a {
+.news-item .meta a,
+.news-item .host a {
 	color: #828282;
 	text-decoration: underline;
 }
-.item .meta a:hover,
-.item .host a:hover {
+.news-item .meta a:hover,
+.news-item .host a:hover {
 	color: #f60;
 }
 </style>

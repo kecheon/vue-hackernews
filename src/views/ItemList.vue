@@ -21,20 +21,21 @@
 <script>
 import Item from '../components/Item.vue'
 import { mapActions } from 'vuex'
+
 export default {
   name: 'item-list',
   components: {
     Item
   },
+
   beforeMount () {
     this.loadItems()
   },
-  data () {
-    return {
-      displayedItems: []
-    }
-  },
+
   computed: {
+    displayedItems () {
+      return this.$store.state.items
+    },
     page () {
       return Number(this.$route.params.page) || 1
     },
@@ -42,7 +43,9 @@ export default {
       return Math.ceil(this.$store.state.ids.length / 20)
     }
   },
+
   props: ['type'],
+
   methods: {
     ...mapActions(['fetchListData']),
     loadItems () {
@@ -54,11 +57,11 @@ export default {
           this.$router.replace(`/${this.type}/1`) // #C
           return
         }
-        this.displayedItems = this.$store.state.items
         this.$bar.finish()
       })
     }
   }
+
 }
 </script>
 

@@ -6,7 +6,6 @@ import Item from '../../components/Item.vue'
 import merge from 'lodash.merge'
 
 const localVue = createLocalVue()
-localVue.use(Vuex)
 
 function createStore (overrides) {
   const defaultStoreConfig = {

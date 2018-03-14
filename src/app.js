@@ -5,7 +5,10 @@ import { sync } from 'vuex-router-sync'
 import App from './App.vue'
 import storeConfig from './store/store-config'
 import routerConfig from './router/router-config'
-import {titleMixin} from './util/mixins'
+import {
+  titleMixin,
+  HTTPStatusMixin
+} from './util/mixins'
 import {
   timeAgo,
   host
@@ -13,6 +16,7 @@ import {
 
 // mixin for handling title
 Vue.mixin(titleMixin)
+Vue.mixin(HTTPStatusMixin)
 
 // register global utility filters.
 Vue.filter('timeAgo', timeAgo)

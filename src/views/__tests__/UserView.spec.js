@@ -1,6 +1,7 @@
 import { shallow, createLocalVue } from '@vue/test-utils'
 import Vuex from 'vuex'
 import UserView from '../UserView.vue'
+console.log(process.env.VUE_ENV)
 
 describe('UserView.vue', () => {
   const localVue = createLocalVue()

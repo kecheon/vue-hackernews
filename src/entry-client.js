@@ -6,7 +6,7 @@ import ProgressBar from './components/ProgressBar.vue'
 const bar = Vue.prototype.$bar = new Vue(ProgressBar).$mount()
 document.body.appendChild(bar.$el)
 
-const { app, router, store } = createApp()
+const { app, store } = createApp()
 
 if (window.__INITIAL_STATE__) {
   store.replaceState(window.__INITIAL_STATE__)

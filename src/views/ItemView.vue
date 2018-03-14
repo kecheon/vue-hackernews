@@ -39,18 +39,17 @@ export default {
   }),
   computed: {
     item () {
-      return this.$store.state.items[this.$route.params.id]
+      return this.$store.state.items[0]
     }
   },
   title () {
     return this.item && this.item.title
   },
-  beforeMount () {
-    this.$store.dispatch('fetchItems', { ids: [this.$route.params.id] })
-    this.fetchComments()
-  },
   watch: {
     item: 'fetchComments'
+  },
+  beforeMount () {
+    this.$store.commit('clearComments')
   },
   methods: {
     fetchComments () {
@@ -66,7 +65,7 @@ export default {
 // recursively fetch all descendent comments
 function fetchComments (store, item) {
   if (item && item.kids) {
-    return store.dispatch('fetchItems', {
+    return store.dispatch('fetchComments', {
       ids: item.kids
     }).then(() => Promise.all(item.kids.map(id => {
       return fetchComments(store, store.state.items[id])

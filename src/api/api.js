@@ -7,14 +7,13 @@ if (!Firebase.apps.length) {
   })
 }
 
-
 const api = Firebase.database().ref('/v0')
 
 function fetch (child) {
-  console.log(`fetching ${child}...`)
+  // console.log(`fetching ${child}...`)
   const cache = api.cachedItems
   if (cache && cache.has(child)) {
-    console.log(`cache hit for ${child}.`)
+    // console.log(`cache hit for ${child}.`)
     return Promise.resolve(cache.get(child))
   } else {
     return new Promise((resolve, reject) => {
@@ -23,8 +22,8 @@ function fetch (child) {
         // mark the timestamp when this item is cached
         if (val) val.__lastUpdated = Date.now()
         cache && cache.set(child, val)
-        console.log(`fetched ${child}.`)
-        console.log(val)
+        // console.log(`fetched ${child}.`)
+        // console.log(val)
         resolve(val)
       }, reject)
     })
@@ -43,6 +42,11 @@ export function fetchItem (id) {
 
 export function fetchItems (ids) {
   return Promise.all(ids.map(id => fetchItem(id)))
+}
+
+export function fetchListData (type) {
+  return fetchIdsByType(type)
+    .then((ids) => fetchItems(ids))
 }
 
 export function fetchUser (id) {
