@@ -4,7 +4,6 @@ import getters from './getters'
 
 const state = {
   activeType: null,
-  itemsPerPage: 20,
   items: [],
   ids: []
 }

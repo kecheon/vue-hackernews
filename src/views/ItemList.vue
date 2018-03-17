@@ -32,9 +32,15 @@ export default {
     this.loadItems()
   },
 
-  data () {
-    return {
-      displayedItems: []
+  computed: {
+    displayItems () {
+      return this.$store.getters.displayItems
+    },
+    maxPage () {
+      return this.$store.state.items.length / 20
+    },
+    page () {
+      return this.$route.params.page || 1
     }
   },
 
@@ -49,7 +55,6 @@ export default {
           this.$router.replace(`/${this.type}/1`) // #C
           return
         }
-        this.displayedItems = this.$store.state.items
         this.$bar.finish()
       })
       .catch(() => {

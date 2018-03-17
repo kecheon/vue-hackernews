@@ -42,6 +42,11 @@ export function fetchItems (ids) {
   return Promise.all(ids.map(id => fetchItem(id)))
 }
 
+export function fetchListData (type) {
+  return fetchIdsByType(type)
+    .then(ids => fetchItems(ids))
+}
+
 export function fetchUser (id) {
   return fetch(`user/${id}`)
 }
