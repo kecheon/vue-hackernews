@@ -46,6 +46,11 @@ export function fetchUser (id) {
   return fetch(`user/${id}`)
 }
 
+export function fetchListData (type) {
+  return fetchIdsByType(type)
+    .then((ids) => fetchItems(ids))
+}
+
 export function watchList (type, cb) {
   let first = true
   const ref = api.child(`${type}stories`)

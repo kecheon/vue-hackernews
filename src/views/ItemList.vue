@@ -1,7 +1,6 @@
 <template>
   <div class="item-list-view">
     <div class="item-list-nav">
-      <span>{{ page }}/{{ maxPage }}</span>
       <router-link v-if="page > 1" :to="'/' + type + '/' + (page - 1)">&lt; prev</router-link>
       <a v-else class="disabled">&lt; prev</a>
       <span>{{ page }}/{{ maxPage }}</span>
@@ -10,7 +9,7 @@
     </div>
     <div class="item-list">
       <item
-        v-for="item in displayedItems"
+        v-for="item in displayItems"
         :key="item.id"
         :item="item"
       />
@@ -44,11 +43,14 @@ export default {
   },
 
   computed: {
+    displayItems () {
+      return this.$store.getters.displayItems
+    },
     page () {
       return Number(this.$route.params.page) || 1
     },
     maxPage () {
-      return Math.ceil(this.$store.state.ids.length / 20)
+      return Math.ceil(this.$store.state.items.length / 20)
     }
   },
 
@@ -65,7 +67,6 @@ export default {
           this.$router.replace(`/${this.type}/1`) // #C
           return
         }
-        this.displayedItems = this.$store.state.items
         this.$bar.finish()
       })
     }

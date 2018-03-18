@@ -45,9 +45,6 @@ function createWrapper (overrides) {
     store: createStore(),
     propsData: {
       type: 'top'
-    },
-    stubs: {
-      RouterLink: RouterLinkStub
     }
   }
   return shallow(ItemList, merge(defaultMountingOptions, overrides))
