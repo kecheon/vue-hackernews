@@ -22,13 +22,11 @@ describe('getters', () => {
     const store = {
       items: numberArray,
       route: {
-        params: {
-          page: 2
-        }
+        params: { page: 2 }
       }
     }
     const result = getters.displayItems(store)
     expect(result.length).toEqual(1) // #B
-    expect(result[0]).toBe(numberArray[20]) // #C
+    expect(result[0]).toBe(numberArray[20]) // #C})
   })
 })

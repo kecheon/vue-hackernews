@@ -11,12 +11,10 @@ localVue.use(Vuex)
 function createStore (overrides) {
   const defaultStoreConfig = {
     state: {
-      itemsPerPage: 20,
-      items: [],
-      ids: new Array(40).fill({})
+      items: new Array(40).fill({})
     },
     getters: {
-      activeItems: jest.fn()
+      displayItems: jest.fn()
     },
     actions: {
       fetchListData: jest.fn(() => Promise.resolve())
@@ -45,15 +43,19 @@ function createWrapper (overrides) {
     store: createStore(),
     propsData: {
       type: 'top'
+    },
+    stubs: {
+      RouterLink: RouterLinkStub
     }
   }
   return shallow(ItemList, merge(defaultMountingOptions, overrides))
 }
 
 describe('ItemList.vue', () => {
-  test('renders an Item for each item in activeItems getter', async () => {
+  test('renders an Item for each item in displayItems getter', async () => {
     const items = [{}, {}, {}]
-    const store = createStore({ state: { items } })
+    const displayItems = () => [{}, {}, {}]
+    const store = createStore({ getters: { displayItems } })
     const wrapper = createWrapper({ store })
     await flushPromises()
     expect(wrapper.findAll(Item).length).toBe(items.length)
@@ -61,7 +63,9 @@ describe('ItemList.vue', () => {
 
   test('passes an item object to each Item component', async () => {
     const items = [{ id: 1 }, { id: 2 }, { id: 3 }]
-    const store = createStore({ state: { items } })
+    const displayItems = () => items
+
+    const store = createStore({ getters: { displayItems } })
     const wrapper = createWrapper({ store })
     await flushPromises()
     const Items = wrapper.findAll(Item)
@@ -91,10 +95,22 @@ describe('ItemList.vue', () => {
     expect(mocks.$bar.finish).toHaveBeenCalled()
   })
 
+  test('dispatches fetchListData with top', async () => {
+    const store = createStore()
+    store.dispatch = jest.fn(() => Promise.resolve())
+    const type = 'a type'
+    const propsData = {
+      type
+    }
+    createWrapper({ store, propsData })
+    await flushPromises()
+    expect(store.dispatch).toHaveBeenCalledWith('fetchListData', { type })
+  })
+
   test('renders 1/5 when on page 1 of 5', () => {
     const store = createStore({
       state: {
-        ids: new Array(100).fill({}) // #A
+        items: new Array(100).fill({}) // #A
       }
     })
     const wrapper = createWrapper({store})
@@ -104,7 +120,7 @@ describe('ItemList.vue', () => {
   test('renders 2/5 when on page 2 of 5', () => {
     const store = createStore({
       state: {
-        ids: new Array(100).fill({})
+        items: new Array(100).fill({})
       }
     })
     const mocks = { // #C
@@ -151,16 +167,33 @@ describe('ItemList.vue', () => {
   })
 
   test('renders a <router-link> with the previous page if one exists', () => {
-    const mocks = {
+    const mocks = { // #A
       $route: {
         params: { page: 2 }
       }
     }
     const wrapper = createWrapper({ mocks })
 
-    expect(wrapper.find(RouterLinkStub).props().to).toBe('/top/1') // #H
-    expect(wrapper.find(RouterLinkStub).text()).toBe('< prev') // #I
+    expect(wrapper.find(RouterLinkStub).props().to).toBe('/top/1') // #B
+    expect(wrapper.find(RouterLinkStub).text()).toBe('< prev')
   })
+
+  test('renders an a tag with an href if there are no previous pages', () => {
+    const wrapper = createWrapper()
+
+    expect(wrapper.find('a').attributes().href).toBe(undefined) // #A
+    expect(wrapper.find('a').text()).toBe('< prev') // #B
+  })
+
+  test('renders a <router-link> with the next page if one exists', () => {
+    const store = createStore({ state: {
+      items: new Array(40).fill({})
+    }})
+    const wrapper = createWrapper({ store })
+    expect(wrapper.find(RouterLinkStub).props().to).toBe('/top/2')
+    expect(wrapper.find(RouterLinkStub).text()).toBe('more >')
+  })
+
   test('renders an a tag with an href if there are no previous pages', () => {
     const wrapper = createWrapper()
 
@@ -169,21 +202,12 @@ describe('ItemList.vue', () => {
   })
 
   test('renders an a tag with no href if there are no next pages', () => {
-    const store = createStore({ state: {
-      ids: []
+    const store = createStore({ state: { // #C
+      items: []
     }})
     const wrapper = createWrapper({ store })
 
     expect(wrapper.findAll('a').at(1).attributes().href).toBe(undefined)
     expect(wrapper.findAll('a').at(1).text()).toBe('more >')
-  })
-
-  test('renders a <router-link> with the next page if one exists', () => {
-    const store = createStore({ state: {
-      ids: new Array(40).fill({})
-    }})
-    const wrapper = createWrapper({ store })
-    expect(wrapper.find(RouterLinkStub).props().to).toBe('/top/2')
-    expect(wrapper.find(RouterLinkStub).text()).toBe('more >')
   })
 })
