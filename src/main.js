@@ -10,7 +10,6 @@ const store = new Vuex.Store(storeConfig)
 
 Vue.config.productionTip = false
 
-// global progress bar
 const bar = Vue.prototype.$bar = new Vue(ProgressBar).$mount()
 document.body.appendChild(bar.$el)
 

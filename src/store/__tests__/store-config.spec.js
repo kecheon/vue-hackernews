@@ -2,7 +2,6 @@ jest.mock('../../api/api') // #A
 
 import Vuex from 'vuex'
 import Vue from 'vue'
-import { createLocalVue } from 'vue-test-utils'
 import flushPromises from 'flush-promises'
 import storeConfig from '../store-config'
 import { fetchListData } from '../../api/api'
@@ -18,7 +17,7 @@ describe('store-config', () => {
     const items = createItems() // #C
     Vue.use(Vuex) // #D
     const clonedStoreConfig = deepClone(storeConfig)
-    const store = new Vuex.Store(storeConfig) // #E
+    const store = new Vuex.Store(clonedStoreConfig) // #E
     const type = 'top'
     fetchListData.mockImplementation((calledType) => { // #F
       return calledType === type
