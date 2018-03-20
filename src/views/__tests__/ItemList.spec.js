@@ -19,7 +19,7 @@ describe('ItemList.vue', () => {
       fetchListData: jest.fn(() => Promise.resolve())
     }
     getters = {
-      activeItems: jest.fn()
+      displayItems: jest.fn()
     }
     store = new Vuex.Store({
       state: {},
@@ -38,15 +38,15 @@ describe('ItemList.vue', () => {
     expect(store.dispatch).toHaveBeenCalledWith('fetchListData', {type: 'top'})
   })
 
-  test('renders an Item for each item in state.items', async () => {
+  test('renders an Item for each item in displayItems getter', async () => {
     const $bar = {
       start: () => {},
       finish: () => {}
     }
     const items = [{}, {}, {}]
-    store.state.items = items
+    getters.displayItems.mockReturnValue(items) // #G
 
-    const wrapper = mount(ItemList, {mocks: {$bar}, localVue, store})
+    const wrapper = mount(ItemList, {mocks: {$bar}, localVue, store}) // #H
     await flushPromises()
     expect(wrapper.findAll(Item).length).toBe(items.length)
   })
@@ -56,10 +56,12 @@ describe('ItemList.vue', () => {
       start: () => {},
       finish: () => {}
     }
+    const items = [{}, {}, {}]
+    getters.displayItems.mockReturnValue(items)
     const wrapper = mount(ItemList, {mocks: {$bar}, localVue, store})
     const Items = wrapper.findAll(Item)
     Items.wrappers.forEach((wrapper, i) => {
-      expect(wrapper.vm.item).toBe(window.items[i])
+      expect(wrapper.vm.item).toBe(items[i])
     })
   })
 
