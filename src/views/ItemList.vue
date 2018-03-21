@@ -21,6 +21,10 @@
 import Item from '../components/Item.vue'
 import { mapActions } from 'vuex'
 
+function capitalizeFirstLetter (string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
+
 export default {
   name: 'item-list',
   components: {
@@ -55,6 +59,9 @@ export default {
   },
 
   props: ['type'],
+  title () {
+    return `${capitalizeFirstLetter(this.type)}`
+  },
 
   methods: {
     ...mapActions(['fetchListData']),

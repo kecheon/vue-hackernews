@@ -32,7 +32,7 @@ describe('Item.vue', () => {
     expect(wrapper.text()).toContain(item.url)
   })
 
-  test('renders an a tag containing item.title', () => {
+  test.skip('renders an a tag containing item.title', () => {
     const item = {
       title: 'some title'
     }
@@ -51,5 +51,35 @@ describe('Item.vue', () => {
     })
     const aWrapper = wrapper.find('a')
     expect(aWrapper.attributes().href).toBe(item.url)
+  })
+
+  test('renders the time since the last post', () => {
+    const dateNow = jest.spyOn(Date, 'now') // #A
+    const dateNowTime = new Date('2018') // #B
+
+    dateNow.mockImplementation(() => dateNowTime) // #C
+
+    const item = { // #D
+      time: (dateNowTime / 1000) - 600 // #E
+    }
+    const wrapper = mount(Item, {
+      propsData: {
+        item
+      }
+    })
+    dateNow.mockRestore() // #F
+    expect(wrapper.text()).toContain('10 minutes ago') // #G
+  })
+
+  test('renders the host name', () => {
+    const item = {
+      url: 'https://some-url.com/with-paths'
+    }
+    const wrapper = mount(Item, {
+      propsData: {
+        item
+      }
+    })
+    expect(wrapper.text()).toContain('(some-url.com)')
   })
 })
