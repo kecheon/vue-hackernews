@@ -32,9 +32,10 @@ describe('Item.vue', () => {
     expect(wrapper.text()).toContain(item.url)
   })
 
-  test.skip('renders an a tag containing item.title', () => {
+  test('renders an <a> tag containing item.title', () => {
     const item = {
-      title: 'some title'
+      title: 'some title',
+      url: 'http://some-url.com'
     }
     const wrapper = mount(Item, {
       propsData: { item }

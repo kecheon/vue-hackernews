@@ -11,6 +11,7 @@ function createStore (overrides) {
     state: {
       comments: {
         a1: {
+          time: 123,
           kids: []
         }
       }
@@ -29,7 +30,7 @@ function createWrapper (overrides) {
     },
     localVue,
     stubs: {
-      'router-link': RouterLinkStub
+      'router-link': 'time'
     }
   }
   return shallow(Comment, merge(defaultMountingOptions, overrides))
@@ -44,9 +45,13 @@ describe('Comment.vue', () => {
             by: 'edd'
           }
         }
-      }
-    })
-    const wrapper = createWrapper({ store })
+      } }
+    )
+    const wrapper = createWrapper({
+      store,
+      stubs: {
+        'router-link': RouterLinkStub
+      } })
     const expectedTo = '/user/edd'
     expect(wrapper.findAll('.by')).toHaveLength(1)
     expect(wrapper.find(RouterLinkStub).vm.to).toBe(expectedTo)
@@ -89,7 +94,7 @@ describe('Comment.vue', () => {
     expect(wrapper.find('.toggle').exists()).toEqual(false)
   })
 
-  test.skip('toggles class open when a tag is clicked', () => {
+  test('toggles class open when a tag is clicked', () => {
     const store = createStore({
       state: {
         comments: {
@@ -100,12 +105,14 @@ describe('Comment.vue', () => {
       }
     })
     const wrapper = createWrapper({ store })
-    expect(wrapper.find('.toggle').classes()).toContain('open')
+    console.log(wrapper.html())
     wrapper.find('a').trigger('click')
+    console.log(wrapper.html())
+
     expect(wrapper.find('.toggle').classes()).not.toContain('open')
   })
 
-  test.skip('toggles <a> tag text when <a> tag is clicked', () => {
+  test('toggles <a> tag text when <a> tag is clicked', () => {
     const store = createStore({
       state: {
         comments: {
@@ -121,7 +128,7 @@ describe('Comment.vue', () => {
     expect(wrapper.find('a').text()).toContain('[+] 2 replies collapsed')
   })
 
-  test.skip('does not collapsed text when only 1 kid', () => {
+  test('does not collapsed text when only 1 kid', () => {
     const store = createStore({
       state: {
         comments: {
