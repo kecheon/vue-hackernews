@@ -23,7 +23,7 @@ export default {
   name: 'user-view',
   computed: {
     user () {
-      return this.$store.state.users[this.$route.params.id]
+      return this.$store.state.user
     }
   },
   beforeCreate () {

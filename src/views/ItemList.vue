@@ -1,7 +1,7 @@
+
 <template>
   <div class="item-list-view">
     <div class="item-list-nav">
-      <span>{{ page }}/{{ maxPage }}</span>
       <router-link v-if="page > 1" :to="'/' + type + '/' + (page - 1)">&lt; prev</router-link>
       <a v-else class="disabled">&lt; prev</a>
       <span>{{ page }}/{{ maxPage }}</span>
@@ -10,7 +10,7 @@
     </div>
     <div class="item-list">
       <item
-        v-for="item in displayedItems"
+        v-for="item in displayItems"
         :key="item.id"
         :item="item"
       />
@@ -21,31 +21,42 @@
 <script>
 import Item from '../components/Item.vue'
 import { mapActions } from 'vuex'
-
+function capitalizeFirstLetter (string) {
+  return string.charAt(0).toUpperCase() + string.slice(1)
+}
 export default {
   name: 'item-list',
   components: {
     Item
   },
-
   beforeMount () {
     this.loadItems()
   },
-
+  data () {
+    return {
+      displayedItems: []
+    }
+  },
+  watch: {
+    page () {
+      this.loadItems()
+    }
+  },
   computed: {
-    displayedItems () {
-      return this.$store.state.items
+    displayItems () {
+      return this.$store.getters.displayItems
     },
     page () {
       return Number(this.$route.params.page) || 1
     },
     maxPage () {
-      return Math.ceil(this.$store.state.ids.length / 20)
+      return Math.ceil(this.$store.state.items.length / 20)
     }
   },
-
   props: ['type'],
-
+  title () {
+    return `${capitalizeFirstLetter(this.type)}`
+  },
   methods: {
     ...mapActions(['fetchListData']),
     loadItems () {
@@ -61,7 +72,6 @@ export default {
       })
     }
   }
-
 }
 </script>
 

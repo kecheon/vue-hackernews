@@ -1,21 +1,25 @@
-import { fetchItems, fetchIdsByType, fetchListData } from '../api/api'
+import {
+  fetchListData,
+  fetchItems,
+  fetchItem,
+  fetchUser
+} from '../api/api'
 
 export default {
-  fetchItem: ({ commit, getters }, { id }) => {
-    return fetchItems([id])
-      .then(items => commit('setItem', { item }))
-  },
-
-  fetchItems: ({ commit, getters }, { ids }) => {
-    console.log(ids)
-    return fetchItems(ids)
-      .then(items => commit('setItems', { items }))
-  },
-
-  fetchListData: ({ commit, getters, dispatch }, { type }) => {
-    commit('setActiveType', { type })
+  fetchListData: ({ commit }, { type }) => {
     return fetchListData(type)
       .then(items => commit('setItems', { items }))
+  },
+  fetchComments: ({ commit }, { ids }) => {
+    return fetchItems(ids)
+      .then(comments => commit('setComments', { comments }))
+  },
+  fetchItem: ({ commit }, { id }) => {
+    return fetchItem(id)
+      .then(item => commit('setItem', { item }))
+  },
+  fetchUser: ({ commit, state }, { id }) => {
+    return fetchUser(id)
+    .then(user => commit('setUser', { user }))
   }
-
 }

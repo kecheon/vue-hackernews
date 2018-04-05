@@ -1,13 +1,21 @@
+import Vue from 'vue'
+
 export default {
-  setActiveType: (state, { type }) => {
-    state.activeType = type
+  setItem: (state, { item }) => {
+    state.item = item
   },
-
-  setIds: (state, { ids }) => {
-    state.ids = ids
-  },
-
   setItems: (state, { items }) => {
     state.items = items
+  },
+  setComments: (state, { comments }) => {
+    comments.forEach(comment => {
+      console.log(comment, 'comment')
+      if (comment) {
+        Vue.set(state.comments, comment.id, comment)
+      }
+    })
+  },
+  setUser: (state, { user }) => {
+    state.user = user
   }
 }

@@ -30,7 +30,6 @@
 <script>
 import Spinner from '../components/Spinner.vue'
 import Comment from '../components/Comment.vue'
-
 export default {
   name: 'item-view',
   components: { Spinner, Comment },
@@ -39,17 +38,18 @@ export default {
   }),
   computed: {
     item () {
-      return this.$store.state.items[0]
+      return this.$store.state.item
     }
   },
   title () {
     return this.item && this.item.title
   },
+  beforeMount () {
+    this.$store.dispatch('fetchItem', { id: [this.$route.params.id] })
+    this.fetchComments()
+  },
   watch: {
     item: 'fetchComments'
-  },
-  beforeMount () {
-    this.$store.commit('clearComments')
   },
   methods: {
     fetchComments () {
@@ -63,12 +63,12 @@ export default {
   }
 }
 // recursively fetch all descendent comments
-function fetchComments (store, item) {
-  if (item && item.kids) {
+function fetchComments (store, comment) {
+  if (comment && comment.kids) {
     return store.dispatch('fetchComments', {
-      ids: item.kids
-    }).then(() => Promise.all(item.kids.map(id => {
-      return fetchComments(store, store.state.items[id])
+      ids: comment.kids
+    }).then(() => Promise.all(comment.kids.map(id => {
+      return fetchComments(store, store.state.comments[id])
     })))
   }
 }
