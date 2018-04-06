@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<testsuites errors="0"
+            failures="1"
+            tests="2">
+
+  <testsuite name="journeys"
+    errors="0" failures="1" hostname="" id="" package="journeys" skipped="0"
+    tests="2" time="43.62" timestamp="Fri, 06 Apr 2018 05:34:05 GMT">
+  
+    <testcase name="paginates items correctly" classname="journeys" time="18.88" assertions="5">
+
+    
+
+    
+
+    
+
+    
+
+    
+    </testcase>
+  
+    <testcase name="changes list by clicking through nav" classname="journeys" time="24.73" assertions="4">
+
+    
+
+    
+
+      <failure message="Timed out while waiting for element &lt;.progress&gt; to not be visible for 15000 milliseconds.">    at Object.changes list by clicking through nav (/Users/yerbue01/workspace/vue-hackernews/e2e/specs/journeys.js:46:8)
+    at _combinedTickCallback (internal/process/next_tick.js:131:7)</failure>
+
+    
+    </testcase>
+  
+
+  
+
+  
+  </testsuite>
+</testsuites>
