@@ -1,8 +1,9 @@
 /**
  * @jest-environment node
  */
+global.window = {}
 
-import { renderToString, render } from '@vue/test-utils'
+import { renderToString, render } from '@vue/server-test-utils'
 import NotFound from '../NotFound.vue'
 
 test('renders correctly ', () => {

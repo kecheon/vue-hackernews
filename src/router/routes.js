@@ -11,6 +11,6 @@ export default [
   { path: '/job/:page?', component: ItemList, props: {type: 'job'} },
   { path: '/item/:id(\\d+)', component: ItemView },
   { path: '/user/:id', component: UserView },
-  { path: '/*', component: NotFound },
-  { path: '/', redirect: '/top' }
+  { path: '/', redirect: '/top' },
+  { path: '/*', component: NotFound }
 ]

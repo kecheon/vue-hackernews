@@ -1,6 +1,0 @@
-// Jest Snapshot v1, https://goo.gl/fbAQLP
-
-exports[`UserView.vue renders user.about as html if it exists 1`] = `
-"<div class=\\"user-view\\"><h1>User : user1</h1> <ul class=\\"meta\\"><li><span class=\\"label\\">Created:</span> 69 days ago</li> <li><span class=\\"label\\">Karma:</span> 87870</li> <li class=\\"about\\">Software engineer living in London</li></ul> <p class=\\"links\\"><a href=\\"https://news.ycombinator.com/submitted?id=user1\\">submissions</a> |
-      <a href=\\"https://news.ycombinator.com/threads?id=user1\\">comments</a></p></div>"
-`;

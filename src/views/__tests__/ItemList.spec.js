@@ -6,16 +6,16 @@ import Item from '../../components/Item.vue'
 import merge from 'lodash.merge'
 
 const localVue = createLocalVue()
+localVue.use(Vuex)
 
 function createStore (overrides) {
   const defaultStoreConfig = {
     state: {
       itemsPerPage: 20,
-      items: [],
-      ids: new Array(40).fill({})
+      items: new Array(40).fill({})
     },
     getters: {
-      activeItems: jest.fn()
+      displayItems: jest.fn(() => [])
     },
     actions: {
       fetchListData: jest.fn(() => Promise.resolve())
@@ -53,9 +53,9 @@ function createWrapper (overrides) {
 }
 
 describe('ItemList.vue', () => {
-  test('renders an Item for each item in activeItems getter', async () => {
+  test('renders an Item for each item in displayItems getter', async () => {
     const items = [{}, {}, {}]
-    const store = createStore({ state: { items } })
+    const store = createStore({ getters: { displayItems: () => items } })
     const wrapper = createWrapper({ store })
     await flushPromises()
     expect(wrapper.findAll(Item).length).toBe(items.length)
@@ -96,7 +96,7 @@ describe('ItemList.vue', () => {
   test('renders 1/5 when on page 1 of 5', () => {
     const store = createStore({
       state: {
-        ids: new Array(100).fill({}) // #A
+        items: new Array(100).fill({}) // #A
       }
     })
     const wrapper = createWrapper({store})
@@ -106,10 +106,10 @@ describe('ItemList.vue', () => {
   test('renders 2/5 when on page 2 of 5', () => {
     const store = createStore({
       state: {
-        ids: new Array(100).fill({})
+        items: new Array(100).fill({})
       }
     })
-    const mocks = { // #C
+    const mocks = {
       $route: {
         params: {
           page: 2
@@ -117,7 +117,7 @@ describe('ItemList.vue', () => {
       }
     }
     const wrapper = createWrapper({ mocks, store })
-    expect(wrapper.text()).toContain('2/5') // #D
+    expect(wrapper.text()).toContain('2/5')
   })
 
   test('calls $router.replace when the page parameter is less than 0', async () => {
@@ -172,7 +172,7 @@ describe('ItemList.vue', () => {
 
   test('renders an a tag with no href if there are no next pages', () => {
     const store = createStore({ state: {
-      ids: []
+      items: []
     }})
     const wrapper = createWrapper({ store })
 
@@ -182,7 +182,7 @@ describe('ItemList.vue', () => {
 
   test('renders a <router-link> with the next page if one exists', () => {
     const store = createStore({ state: {
-      ids: new Array(40).fill({})
+      items: new Array(40).fill({})
     }})
     const wrapper = createWrapper({ store })
     expect(wrapper.find(RouterLinkStub).props().to).toBe('/top/2')

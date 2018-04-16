@@ -1,8 +1,4 @@
-import Vue from 'vue'
 import { createApp } from './app'
-import moment from 'moment-timezone'
-
-Vue.prototype.moment = moment
 
 export default context => {
   return new Promise((resolve, reject) => {
